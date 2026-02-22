@@ -1,0 +1,61 @@
+# Defines the Kubernetes resources required to deploy the application to GKE. 
+# Includes the Deployment (to run the container pods) and the Service 
+# (to expose the application via a Load Balancer).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adk-agent
+  template:
+    metadata:
+      labels:
+        app: adk-agent
+    spec:
+      # Assign the Kubernetes Service Account for Workload Identity
+      serviceAccountName: adk-agent-sa
+      containers:
+      - name: adk-agent
+        imagePullPolicy: Always
+        # The path to the container image in Artifact Registry
+        image: us-central1-docker.pkg.dev/gcp-onboarding-project-480819/adk-repo/adk-agent:latest
+        # Define the resources for GKE Autopilot to provision
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "512Mi"
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "512Mi"
+        ports:
+        - containerPort: 8080
+        # Environment variables passed to the application
+        env:
+        - name: PORT
+          value: "8080"
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "gcp-onboarding-project-480819"
+        - name: GOOGLE_CLOUD_LOCATION
+          value: "us-west1"
+        - name: GOOGLE_GENAI_USE_VERTEXAI
+          value: "true"
+        - name: MODEL
+          value: "gemini-2.5-flash"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adk-agent
+spec:
+  # Create a public-facing Network Load Balancer with an external IP
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: adk-agent

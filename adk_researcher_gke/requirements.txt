@@ -1,0 +1,6 @@
+# Lists all Python dependencies required to run the multi-agent system,
+# including the Google ADK, LangChain community tools, and web server libraries.
+langchain-community==0.3.20
+wikipedia==1.4.0
+google-adk[a2a]==1.23.0
+uvicorn==0.38.0

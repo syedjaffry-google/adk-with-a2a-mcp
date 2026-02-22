@@ -1,0 +1,20 @@
+Logline: A quiet Finnish student, driven by a passion for open-source collaboration, sparks a global technological revolution by creating a free operating system kernel that empowers millions and forever changes the digital landscape.
+
+Synopsis:
+**Three-Act Plot Outline:**
+
+*   **Act 1: The Seed of Rebellion**
+    *   Introduce Linus Torvalds, a brilliant but unassuming computer science student in Helsinki, Finland, who is deeply fascinated by operating systems but frustrated by the proprietary and restrictive nature of existing software like MINIX.
+    *   Show his early experiments and his growing conviction that software should be free and open for everyone to use and improve.
+    *   **Inciting Incident:** Linus decides to build his own operating system kernel from scratch, not for profit, but for the sheer joy of creation and sharing. He announces his ambitious project on a Usenet group, inviting others to contribute and collaborate.
+
+*   **Act 2: The Kernel of a Revolution**
+    *   Linus faces initial skepticism, technical challenges, and long nights of coding, fueled by his unwavering vision. He works tirelessly, often alone, to lay the foundation of his new kernel.
+    *   Slowly, a global community of developers begins to respond to his call, contributing code, bug fixes, and ideas. This act highlights the burgeoning power of open-source collaboration across continents.
+    *   **Rising Action:** The project, now named "Linux," gains significant traction, but also encounters obstacles: debates within the growing community over design choices, compatibility issues with various hardware, and the looming presence of established tech giants who either dismiss Linux as a hobby or see it as a potential threat.
+    *   Linus navigates these challenges, demonstrating his unique blend of technical prowess, pragmatic leadership, and steadfast commitment to the open-source philosophy, often through direct and sometimes blunt communication.
+
+*   **Act 3: The World Embraces Freedom**
+    *   Linux begins to gain widespread adoption, moving beyond academic circles to power servers, embedded systems, and eventually challenging the dominance of proprietary operating systems in various sectors. The world starts to recognize the immense potential of this free and open alternative.
+    *   **Climax:** Linus grapples with the immense success and the responsibilities that come with leading a global technological movement. This could involve a critical decision point for Linux's future direction, a public confrontation with a proprietary software giant, or a moment where the undeniable impact of Linux on the world becomes clear (e.g., powering the internet's infrastructure, early smartphones, or supercomputers).
+    *   **Resolution:** Linux becomes a cornerstone of modern technology, a testament to the power of open collaboration and Linus's visionary leadership. Linus, despite his global recognition, remains true to his humble and pragmatic nature, emphasizing the community's collective achievement. The film concludes by showcasing the enduring legacy of Linux and the spirit of open source, which continues to shape the digital world, leaving audiences inspired by the story of how one person's idea, shared freely, could change everything.
