@@ -17,12 +17,16 @@ from google.adk.tools.langchain_tool import LangchainTool  # import
 from google.genai import types
 from google.adk.a2a.utils.agent_to_a2a import to_a2a
 from a2a.types import AgentCard
-
-# public_url = os.getenv("AGENT_PUBLIC_URL", "http://localhost:8080")
-public_url = 'http://136.112.90.99'
-
 from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
+
+# Read the public IP from the file created by the init container.
+try:
+    with open('/ip/public_ip', 'r') as f:
+        public_ip = f.read().strip()
+    public_url = f"http://{public_ip}"
+except FileNotFoundError:
+    public_url = "http://localhost:8080" # Fallback for local development
 
 
 cloud_logging_client = google.cloud.logging.Client()
@@ -99,12 +103,4 @@ researcher_agent_card = AgentCard(
     defaultOutputModes=["text/plain"]
 )
 
-# a2a_app = to_a2a(root_agent, port=8080)
 a2a_app = to_a2a(root_agent, agent_card=researcher_agent_card)
-
-# Only create the A2A app if this file is run directly via 'python agent.py'
-# if __name__ == "__main__":
-#     import uvicorn
-#     # This exposes your agent via the A2A protocol
-#     a2a_app = to_a2a(root_agent, port=8001)
-#     uvicorn.run(a2a_app, host="0.0.0.0", port=8001)

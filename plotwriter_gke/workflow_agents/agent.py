@@ -9,17 +9,15 @@ import google.cloud.logging
 
 from google.adk.agents.remote_a2a_agent import AGENT_CARD_WELL_KNOWN_PATH
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
+from google.adk.a2a.utils.agent_to_a2a import to_a2a
+from a2a.types import AgentCard
 from callback_logging import log_query_to_model, log_model_response
 from dotenv import load_dotenv
 
 from google.adk import Agent
 from google.adk.agents import SequentialAgent, LoopAgent, ParallelAgent
 from google.adk.tools.tool_context import ToolContext
-from google.adk.tools.langchain_tool import LangchainTool  # import
 from google.genai import types
-
-from langchain_community.tools import WikipediaQueryRun
-from langchain_community.utilities import WikipediaAPIWrapper
 
 
 cloud_logging_client = google.cloud.logging.Client()
@@ -30,9 +28,15 @@ load_dotenv()
 model_name = os.getenv("MODEL")
 print(model_name)
 
+# Read the public IP from the file created by the init container.
+try:
+    with open('/ip/public_ip', 'r') as f:
+        public_ip = f.read().strip()
+    public_url = f"http://{public_ip}"
+except FileNotFoundError:
+    public_url = "http://localhost:8080" # Fallback for local development
+
 # Tools
-
-
 def append_to_state(
     tool_context: ToolContext, field: str, response: str
 ) -> dict[str, str]:
@@ -123,7 +127,8 @@ wiki_researcher = RemoteA2aAgent(
     description="Agent that uses wikipedia to research answers to questions",
     agent_card=
     (
-        f"http://136.112.90.90:80{AGENT_CARD_WELL_KNOWN_PATH}"        
+        # ToDo: Implement Agent Registry and replace hard-coding
+        f"http://136.112.90.99:80{AGENT_CARD_WELL_KNOWN_PATH}"        
     ),
 )
 
@@ -153,3 +158,16 @@ root_agent = Agent(
     tools=[append_to_state],
     sub_agents=[film_concept_team],
 )
+
+plotwriter_agent_card = AgentCard(
+    name=root_agent.name,
+    url=public_url, 
+    description="Create a movie plot outline and save it as a text file.",
+    version="1.0.0",
+    capabilities={},
+    skills=[],
+    defaultInputModes=["text/plain"],
+    defaultOutputModes=["text/plain"]
+)
+
+a2a_app = to_a2a(root_agent, agent_card=plotwriter_agent_card)

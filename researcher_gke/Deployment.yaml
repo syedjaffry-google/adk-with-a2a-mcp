@@ -1,0 +1,109 @@
+# Defines the Kubernetes resources required to deploy the application to GKE. 
+# Includes the Deployment (to run the container pods) and the Service 
+# (to expose the application via a Load Balancer).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: researcher-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: researcher-agent
+  template:
+    metadata:
+      labels:
+        app: researcher-agent
+    spec:
+      # Assign the Kubernetes Service Account for Workload Identity
+      serviceAccountName: researcher-agent-sa
+      # This init container runs before the main app container.
+      # It discovers the LoadBalancer IP and writes it to a shared volume.
+      initContainers:
+      - name: init-discover-ip
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+            echo "Waiting for external IP..."
+            IP=""
+            while [ -z "$IP" ]; do
+              IP=$(kubectl get service researcher-agent -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+              [ -z "$IP" ] && echo "Still waiting..." && sleep 5
+            done
+            echo "Found IP: $IP"
+            echo -n "$IP" > /ip/public_ip
+        volumeMounts:
+        - name: ip-volume
+          mountPath: /ip
+      containers:
+      - name: researcher-agent
+        imagePullPolicy: Always
+        # The path to the container image in Artifact Registry
+        image: us-central1-docker.pkg.dev/gcp-onboarding-project-480819/adk-repo/researcher-agent:latest
+        # Define the resources for GKE Autopilot to provision
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "512Mi"
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "512Mi"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: ip-volume
+          mountPath: /ip
+        # Environment variables passed to the application
+        env:
+        - name: PORT
+          value: "8080"
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "gcp-onboarding-project-480819"
+        - name: GOOGLE_CLOUD_LOCATION
+          value: "us-central1"
+        - name: GOOGLE_GENAI_USE_VERTEXAI
+          value: "true"
+        - name: MODEL
+          value: "gemini-2.5-flash"
+      volumes:
+      - name: ip-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: researcher-agent
+spec:
+  # Create a public-facing Network Load Balancer with an external IP
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: researcher-agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: researcher-agent-service-reader
+rules:
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: researcher-agent-read-service
+subjects:
+- kind: ServiceAccount
+  name: researcher-agent-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: researcher-agent-service-reader
+  apiGroup: rbac.authorization.k8s.io

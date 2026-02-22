@@ -33,4 +33,4 @@ USER myuser
 ENV PATH="/home/myuser/.local/bin:$PATH"
 
 # Define the command to run when the container starts
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+CMD ["uvicorn", "workflow_agents.agent:a2a_app", "--host", "0.0.0.0", "--port", "8080"]
